@@ -1,7 +1,6 @@
-import { useEffect, useState } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-
+import { nanoid } from 'nanoid';
 import { ContactList } from 'components/ContactList/ContactList';
 import { Filter } from 'components/Filter/Filter';
 import { ContactForm } from 'components/ContactForm/ContactForm';
@@ -9,45 +8,38 @@ import { Section } from 'components/Section/Section';
 import { Container } from './App.styled';
 
 import { notifyOptions } from 'components/notifyOptions';
+import { useDispatch, useSelector } from 'react-redux';
+import { deleteContact, setContacts, setFilter } from 'redux/phonebookReducer';
 
 export const App = () => {
-  const [contacts, setContacts] = useState([
-    { id: 'id-1', name: 'Rosie Simpson', number: '459-12-56' },
-    { id: 'id-2', name: 'Hermione Kline', number: '443-89-12' },
-    { id: 'id-3', name: 'Eden Clements', number: '645-17-79' },
-    { id: 'id-4', name: 'Annie Copeland', number: '227-91-26' },
-  ]);
-  const [filter, setFilter] = useState('');
+  const contacts = useSelector(state => state.phonebook.contacts);
+  const filter = useSelector(state => state.phonebook.filter);
+  const dispatch = useDispatch();
 
-  const formSubmitHandler = contact => {
-    const existingContact = contacts.find(cont => cont.name === contact.name);
+  const handleAddContact = (name, number) => {
+    const existingContacts = checkNewContactData(name);
 
-    if (existingContact) {
+    if (existingContacts) {
       return toast.error(
-        `Contact with name "${contact.name}" already exists!`,
+        `Contact with name "${name}" already exists!`,
         notifyOptions
       );
     }
 
-    setContacts(prevContacts => [...prevContacts, contact]);
+    const contact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+    dispatch(setContacts(contact));
     toast.success(
       `Contact with name ${contact.name} is added to the contact list!`,
       notifyOptions
     );
   };
 
-  const handleDeleteContact = (id, name) => {
-    setContacts(prevContacts =>
-      prevContacts.filter(contact => contact.id !== id)
-    );
-    toast.info(
-      `Contact with with name ${name} has been deleted!`,
-      notifyOptions
-    );
-  };
-
   const handleFilterChange = e => {
-    setFilter(e.target.value);
+    dispatch(setFilter(e.target.value));
   };
 
   const getFilteredContacts = () => {
@@ -58,21 +50,24 @@ export const App = () => {
     );
   };
 
-  useEffect(() => {
-    const savedStringifiedContacts = localStorage.getItem('contacts');
-    const contacts = JSON.parse(savedStringifiedContacts) ?? [];
-    setContacts(contacts);
-  }, []);
+  const handleDeleteContact = contactId => {
+    dispatch(deleteContact(contactId));
+    toast.info(
+      `Contact with with name ${contactId.name} has been deleted!`,
+      notifyOptions
+    );
+  };
 
-  useEffect(() => {
-    const savedStringifiedContacts = JSON.stringify(contacts);
-    localStorage.setItem('contacts', savedStringifiedContacts);
-  }, [contacts]);
+  const checkNewContactData = name => {
+    return contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+  };
 
   return (
     <Container>
       <Section title="Phonebook">
-        <ContactForm onSubmit={formSubmitHandler} />
+        <ContactForm onSubmit={handleAddContact} />
       </Section>
       <ToastContainer />
       <Section title="Contacts">

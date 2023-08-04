@@ -5,28 +5,39 @@ import {
   Contact,
   DeleteButton,
 } from './ContactList.styled';
+import { useDispatch } from 'react-redux';
+import { deleteContact } from 'redux/phonebookReducer';
+import { toast } from 'react-toastify';
+import { notifyOptions } from 'components/notifyOptions';
 
-export const ContactList = ({ contacts, onDeleteContact }) => {
+export const ContactList = ({ contacts }) => {
+  const dispatch = useDispatch();
+
+  const handleDeleteContact = (id, name) => {
+    dispatch(deleteContact(id, name));
+    toast.info(
+      `Contact with with name ${name} has been deleted!`,
+      notifyOptions
+    );
+  };
+
   return (
     <ContactsList>
-      {contacts.map(({ id, name, number }) => {
-        return (
-          <ContactItem key={id}>
-            <Contact>
-              {name}: {number}
-            </Contact>
-            <DeleteButton onClick={() => onDeleteContact(id, name)}>
-              Delete
-            </DeleteButton>
-          </ContactItem>
-        );
-      })}
+      {contacts.map(({ id, name, number }) => (
+        <ContactItem key={id}>
+          <Contact>
+            {name}: {number}
+          </Contact>
+          <DeleteButton onClick={() => handleDeleteContact(id, name)}>
+            Delete
+          </DeleteButton>
+        </ContactItem>
+      ))}
     </ContactsList>
   );
 };
 
 ContactList.propTypes = {
-  onDeleteContact: PropTypes.func.isRequired,
   contacts: PropTypes.arrayOf(
     PropTypes.shape({
       id: PropTypes.string.isRequired,
