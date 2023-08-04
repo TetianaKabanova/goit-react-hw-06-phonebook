@@ -33,6 +33,13 @@ export const ContactForm = ({ onSubmit }) => {
     onSubmit(name, number);
     dispatch(setName(''));
     dispatch(setNumber(''));
+
+    reset(name, number);
+  };
+
+  const reset = () => {
+    dispatch(setName(''));
+    dispatch(setNumber(''));
   };
 
   return (
