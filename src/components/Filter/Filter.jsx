@@ -1,28 +1,24 @@
-import PropTypes from 'prop-types';
 import { FilterWrap, FilterLabel, FilterInput } from './Filter.styled';
 import { useDispatch, useSelector } from 'react-redux';
 import { setFilter } from 'redux/phonebookReducer';
 
-export const Filter = () => {
-  const value = useSelector(state => state.filter);
+export const Filter = ({ title }) => {
+  const filter = useSelector(state => state.phonebook.filter);
   const dispatch = useDispatch();
-  const onChange = event => dispatch(setFilter(event.target.value));
+
+  const handleFilterChange = e => {
+    dispatch(setFilter(e.target.value));
+  };
 
   return (
     <FilterWrap>
-      <FilterLabel>
-        <FilterInput
-          type="text"
-          value={value}
-          onChange={onChange}
-          placeholder="Type a name to search"
-        />
-      </FilterLabel>
+      <FilterLabel>{title}</FilterLabel>
+      <FilterInput
+        type="text"
+        value={filter}
+        onChange={handleFilterChange}
+        placeholder="Type a name to search"
+      />
     </FilterWrap>
   );
-};
-
-Filter.propTypes = {
-  value: PropTypes.string,
-  onChange: PropTypes.func.isRequired,
 };

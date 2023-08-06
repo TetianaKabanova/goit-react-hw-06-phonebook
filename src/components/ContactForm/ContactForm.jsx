@@ -1,4 +1,3 @@
-import PropTypes from 'prop-types';
 import {
   Form,
   Label,
@@ -7,11 +6,15 @@ import {
   Wrapper,
 } from './ContactForm.styled';
 import { useDispatch, useSelector } from 'react-redux';
-import { setName, setNumber } from 'redux/phonebookReducer';
+import { setContacts, setName, setNumber } from 'redux/phonebookReducer';
+import { toast } from 'react-toastify';
+import { notifyOptions } from 'components/notifyOptions';
+import { nanoid } from 'nanoid';
 
 export const ContactForm = ({ onSubmit }) => {
   const name = useSelector(state => state.phonebook.name);
   const number = useSelector(state => state.phonebook.number);
+  const contacts = useSelector(state => state.phonebook.contacts);
   const dispatch = useDispatch();
 
   const handleChange = e => {
@@ -27,17 +30,43 @@ export const ContactForm = ({ onSubmit }) => {
         return;
     }
   };
-
   const handleSubmit = e => {
     e.preventDefault();
-    onSubmit(name, number);
-    dispatch(setName(''));
-    dispatch(setNumber(''));
+
+    const contact = {
+      id: nanoid(),
+      name,
+      number,
+    };
+
+    handleAddContact(contact);
 
     reset(name, number);
   };
 
-  const reset = () => {
+  const handleAddContact = contact => {
+    const existingContacts = checkNewContactData(name);
+
+    if (existingContacts) {
+      return toast.error(
+        `Contact with name "${name}" already exists!`,
+        notifyOptions
+      );
+    }
+
+    dispatch(setContacts(contact));
+    toast.success(
+      `Contact with name ${contact.name} is added to the contact list!`,
+      notifyOptions
+    );
+  };
+
+  const checkNewContactData = name => {
+    return contacts.some(
+      contact => contact.name.toLowerCase() === name.toLowerCase()
+    );
+  };
+  const reset = (name, number) => {
     dispatch(setName(''));
     dispatch(setNumber(''));
   };
@@ -75,8 +104,4 @@ export const ContactForm = ({ onSubmit }) => {
       <SubmitButton type="submit">Add contact</SubmitButton>
     </Form>
   );
-};
-
-ContactForm.propTypes = {
-  onSubmit: PropTypes.func.isRequired,
 };

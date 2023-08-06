@@ -2,11 +2,17 @@ import styled from '@emotion/styled';
 
 export const FilterWrap = styled.div`
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
 `;
 
 export const FilterLabel = styled.label`
-  color: ${p => p.theme.colors.secondary};
+  color: ${p => p.theme.colors.primary};
+  font-size: ${props => props.theme.fontSize.s};
+  line-height: ${props => props.theme.spacing(4.5)};
+  font-weight: 500;
+  margin-bottom: ${props => props.theme.spacing(1.5)};
+  margin-left: ${props => props.theme.spacing(1.25)};
 `;
 
 export const FilterInput = styled.input`
